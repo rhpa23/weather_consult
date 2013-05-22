@@ -1,0 +1,30 @@
+ <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    	xmlns:tools="http://schemas.android.com/tools"
+        android:orientation="horizontal"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp">
+
+        <EditText
+            android:id="@+id/textoICAO2"
+            android:maxLength="4"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:textSize="@dimen/activity_edit_text_size"
+            android:inputType="textCapCharacters"
+            android:ems="10"
+            android:layout_marginTop="2dp"
+            android:hint="@string/codeIcao" >
+            <requestFocus />
+        </EditText>
+
+        <ImageButton
+	        android:id="@+id/btnBuscar2"
+	        android:layout_width="wrap_content"
+	        android:layout_height="wrap_content"
+	        android:src="@drawable/search"
+	        android:background="@null"
+	        android:contentDescription="@string/searchButton"	/>
+
+</LinearLayout>

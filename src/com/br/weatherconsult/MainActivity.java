@@ -1,110 +1,153 @@
 package com.br.weatherconsult;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
-import javax.xml.parsers.ParserConfigurationException;
-import javax.xml.parsers.SAXParser;
-import javax.xml.parsers.SAXParserFactory;
-import org.xml.sax.SAXException;
-
-import com.br.weatherconsult.ReadXMLFile.MetarInfo;
-
+import android.app.ProgressDialog;
 import android.os.AsyncTask;
 import android.os.Bundle;
-import android.app.Activity;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.view.Menu;
 import android.view.View;
 import android.view.View.OnClickListener;
-import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class MainActivity extends Activity {
+import com.actionbarsherlock.app.SherlockActivity;
+import com.actionbarsherlock.view.Menu;
+import com.actionbarsherlock.view.MenuInflater;
+import com.br.weatherconsult.ReadXMLFile.MetarInfo;
+
+public class MainActivity extends SherlockActivity {
 	
-	private TextView metarText;
-	private TextView observationTimeText;
-	private TextView tempText;
-	private TextView dewpointText;
-	private TextView windDirSpeedText;
-	private TextView visibilityText;
-	private TextView altimHgText;
-	private TextView flightCategoryText;
-	private TextView elevationText;
-	private TextView skyConditionText;
-	private RequestWeatherTask asyncTaskWeather;
-	private ProgressDialog dialog;
+	private TextView mMetarTxt;
+	private TextView mObservationTimeTxt;
+	private TextView mTempTxt;
+	private TextView mDewpointTxt;
+	private TextView mWindDirSpeedTxt;
+	private TextView mVisibilityTxt;
+	private TextView mAltimHgTxt;
+	private TextView mFlightCategoryTxt;
+	private TextView mElevationTxt;
+	private TextView mSkyConditionTxt;
+	private RequestWeatherTask mAsyncTaskWeather;
+	private ProgressDialog mDialog;
+	private ImageButton mSearchBtn;
+	private EditText txtIcao;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
 		super .onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		
-		metarText = (TextView) findViewById(R.id.resultMetar);
-		observationTimeText = (TextView) findViewById(R.id.observationTime);
-		tempText = (TextView) findViewById(R.id.tempC);
-		dewpointText = (TextView) findViewById(R.id.dewpointC);
-		windDirSpeedText = (TextView) findViewById(R.id.windDirSpeed);
-		visibilityText = (TextView) findViewById(R.id.visibility);
-		altimHgText = (TextView) findViewById(R.id.altimHg);
-		flightCategoryText = (TextView) findViewById(R.id.flightCategory);
-		elevationText = (TextView) findViewById(R.id.elevationM);
-		skyConditionText = (TextView) findViewById(R.id.skyCondition);
-		Button btnBuscar = (Button) findViewById(R.id.btnBuscar);
-		
-		btnBuscar.setOnClickListener(new OnClickListener() {
-			
-			@Override
-			public void onClick(View arg0) {
-				exibirMetar();
-			}
-		});		
+		setupViewControls();
 	}
-
-	private void exibirMetar() {
-		try {
-			EditText txtIcao = (EditText) findViewById(R.id.textoICAO);
-			if (txtIcao.getText() != null && txtIcao.getText().toString().length() == 4)	{
-				String serviceLink = "http://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=" 
-						+ txtIcao.getText().toString() + "&hoursBeforeNow=1.5";
-
-				 dialog = ProgressDialog.show(MainActivity.this, getString(R.string.search), getString(R.string.progressOn));
-				asyncTaskWeather = new RequestWeatherTask();
-				asyncTaskWeather.execute(serviceLink);
-			}
-			else	{
-				Toast.makeText(this, "Código ICAO inválido.", Toast.LENGTH_LONG).show();
-			}
-
-		} catch (Exception e) {
-			e.printStackTrace();
-			Toast.makeText(this, "Erro ao solicitar web-service." + e.getMessage(), Toast.LENGTH_LONG).show();
-		}
-	}
-
+	
+	/*
+	 * Para guardar o estato dos textos mesmo após a mudança de orientação.
+	 */
 	@Override
-	public boolean onCreateOptionsMenu(Menu menu) {
-		// Inflate the menu; this adds items to the action bar if it is present.
-		getMenuInflater().inflate(R.menu.main, menu);
-		return true;
+	public void onSaveInstanceState(Bundle outState) {
+	  super.onSaveInstanceState(outState);
+	  if (mObservationTimeTxt != null)	{
+		  outState.putString("ObservationTime", mObservationTimeTxt.getText().toString());
+	  }
+	  if (mMetarTxt != null)	{
+		  outState.putString("Metar", mMetarTxt.getText().toString());
+	  }
+	  if (mTempTxt != null)	{
+		  outState.putString("Temp", mTempTxt.getText().toString());
+	  }
+	  if (mDewpointTxt != null)	{
+		  outState.putString("Dewpoint", mDewpointTxt.getText().toString());
+	  }
+	  if (mWindDirSpeedTxt != null)	{
+		  outState.putString("WindDirSpeed", mWindDirSpeedTxt.getText().toString());
+	  }
+	  if (mVisibilityTxt != null)	{
+		  outState.putString("Visibility", mVisibilityTxt.getText().toString());
+	  }
+	  if (mAltimHgTxt != null)	{
+		  outState.putString("AltimHg", mAltimHgTxt.getText().toString());
+	  }
+	  if (mFlightCategoryTxt != null)	{
+		  outState.putString("FlightCategory", mFlightCategoryTxt.getText().toString());
+	  }
+	  if (mElevationTxt != null)	{
+		  outState.putString("Elevation", mElevationTxt.getText().toString());
+	  }
+	  if (mSkyConditionTxt != null)	{
+		  outState.putString("SkyCondition", mSkyConditionTxt.getText().toString());
+	  }
+	}
+	@Override
+	public void onRestoreInstanceState(Bundle savedInstanceState) {
+	  super.onRestoreInstanceState(savedInstanceState);
+	  if (mObservationTimeTxt != null)	{
+		  mObservationTimeTxt.setText(savedInstanceState.getString("ObservationTime"));
+	  }
+	  if (mMetarTxt != null)	{
+		  mMetarTxt.setText(savedInstanceState.getString("Metar"));
+	  }
+	  if (mTempTxt != null)	{
+		  mTempTxt.setText(savedInstanceState.getString("Temp"));
+	  }
+	  if (mDewpointTxt != null)	{
+		  mDewpointTxt.setText(savedInstanceState.getString("Dewpoint"));
+	  }
+	  if (mWindDirSpeedTxt != null)	{
+		  mWindDirSpeedTxt.setText(savedInstanceState.getString("WindDirSpeed"));
+	  }
+	  if (mVisibilityTxt != null)	{
+		  mVisibilityTxt.setText(savedInstanceState.getString("Visibility"));
+	  }
+	  if (mAltimHgTxt != null)	{
+		  mAltimHgTxt.setText(savedInstanceState.getString("AltimHg"));
+	  }
+	  if (mFlightCategoryTxt != null)	{
+		  mFlightCategoryTxt.setText(savedInstanceState.getString("FlightCategory"));
+	  }
+	  if (mElevationTxt != null)	{
+		  mElevationTxt.setText(savedInstanceState.getString("Elevation"));
+	  }
+	  if (mSkyConditionTxt != null)	{
+		  mSkyConditionTxt.setText(savedInstanceState.getString("SkyCondition"));
+	  }
 	}
 	
 	@Override
+	public boolean onCreateOptionsMenu(Menu menu) {
+		MenuInflater inflater = getSupportMenuInflater();
+	    inflater.inflate(R.menu.main, menu);
+	    
+	    setupViewControls(menu); 
+	    
+	    return super.onCreateOptionsMenu(menu);
+	}
+	
+	/*
+	 * Define o Listener de Cliques.
+	 */
+	private final OnClickListener mClickListener = new OnClickListener() {
+		@Override
+		public void onClick(View view) {
+			switch (view.getId()) {
+				case R.id.btnBuscar2:
+					exibirMetar();
+			        break;
+			}
+		}
+	};
+	
+	@Override
 	protected void onDestroy() {
-		if (dialog != null && dialog.isShowing()) {
-			dialog.dismiss();
-			dialog = null ;
+		if (mDialog != null && mDialog.isShowing()) {
+			mDialog.dismiss();
+			mDialog = null ;
 		}
 
-		if (asyncTaskWeather != null)	{
-			asyncTaskWeather.cancel(true);	
+		if (mAsyncTaskWeather != null)	{
+			mAsyncTaskWeather.cancel(true);	
 		}
 		
 		super.onDestroy();
@@ -114,6 +157,55 @@ public class MainActivity extends Activity {
 	public void onBackPressed()
 	{
 		finish();
+	}
+	
+	/*
+	 * Método específico para inicializar UI .
+	 */
+	private void setupViewControls() {
+		mMetarTxt = (TextView) findViewById(R.id.resultMetar);
+		mObservationTimeTxt = (TextView) findViewById(R.id.observationTime);
+		mTempTxt = (TextView) findViewById(R.id.tempC);
+		mDewpointTxt = (TextView) findViewById(R.id.dewpointC);
+		mWindDirSpeedTxt = (TextView) findViewById(R.id.windDirSpeed);
+		mVisibilityTxt = (TextView) findViewById(R.id.visibility);
+		mAltimHgTxt = (TextView) findViewById(R.id.altimHg);
+		mFlightCategoryTxt = (TextView) findViewById(R.id.flightCategory);
+		mElevationTxt = (TextView) findViewById(R.id.elevationM);
+		mSkyConditionTxt = (TextView) findViewById(R.id.skyCondition);
+	}
+	
+	/*
+	 * Método específico para inicializar UI que está no action bar. 
+	 */
+	private void setupViewControls(Menu menu) {
+		mSearchBtn = (ImageButton) menu.findItem(R.id.search_action_bar).getActionView().findViewById(R.id.btnBuscar2);
+	    txtIcao = (EditText) menu.findItem(R.id.search_action_bar).getActionView().findViewById(R.id.textoICAO2);
+	    
+	    mSearchBtn.setOnClickListener(mClickListener);
+	}
+	
+	/*
+	 * Exibe as informações do metar a partir do código ICAO utilizado.
+	 */
+	private void exibirMetar() {
+		try {
+			if (txtIcao.getText() != null && txtIcao.getText().toString().length() == 4)	{
+				String serviceLink = "http://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=" 
+						+ txtIcao.getText().toString() + "&hoursBeforeNow=1.5";
+
+				 mDialog = ProgressDialog.show(MainActivity.this, getString(R.string.search), getString(R.string.progressOn));
+				mAsyncTaskWeather = new RequestWeatherTask();
+				mAsyncTaskWeather.execute(serviceLink);
+			}
+			else	{
+				Toast.makeText(this, "Código ICAO inválido.", Toast.LENGTH_LONG).show();
+			}
+
+		} catch (Exception e) {
+			e.printStackTrace();
+			Toast.makeText(this, "Erro ao solicitar web-service." + e.getMessage(), Toast.LENGTH_LONG).show();
+		}
 	}
 	
 	/*
@@ -143,25 +235,26 @@ public class MainActivity extends Activity {
 		@Override
 		protected void onPreExecute() {
 			super.onPreExecute();
-			dialog.show();
+			mDialog.show();
 		}
 		
 		@Override
 		protected void onPostExecute(MetarInfo result) {
 			super.onPostExecute(result);
-			metarText.setText(result.getCurrentMetar());
-			observationTimeText.setText(getString(R.string.observationTime) + " " + result.getObservationTime());
-			tempText.setText(getString(R.string.tempC) + " " + result.getTempC());
-			dewpointText.setText(getString(R.string.dewpointC) + " " + result.getDewpointC());
-			windDirSpeedText.setText(getString(R.string.wind) + " " + result.getWindDirDegrees() + " / " + result.getWindSpeedKt());
-			visibilityText.setText(getString(R.string.visibility) + " " + result.getVisibilityStatuteMi());
-			altimHgText.setText(getString(R.string.altimHg) + " " + result.getAltimHg());
-			flightCategoryText.setText(getString(R.string.flightCategory) + " " + result.getFlightCategory());
-			elevationText.setText(getString(R.string.elevationM) + " " + result.getElevationM());
-			skyConditionText.setText(result.getSkyCondition());
-			dialog.dismiss();
+			mMetarTxt.setText(result.getCurrentMetar());
+			mObservationTimeTxt.setText(getString(R.string.observationTime) + " " + result.getObservationTime());
+			mTempTxt.setText(getString(R.string.tempC) + " " + result.getTempC());
+			mDewpointTxt.setText(getString(R.string.dewpointC) + " " + result.getDewpointC());
+			mWindDirSpeedTxt.setText(getString(R.string.wind) + " " + result.getWindDirDegrees() + " / " + result.getWindSpeedKt());
+			mVisibilityTxt.setText(getString(R.string.visibility) + " " + result.getVisibilityStatuteMi());
+			mAltimHgTxt.setText(getString(R.string.altimHg) + " " + result.getAltimHg());
+			mFlightCategoryTxt.setText(getString(R.string.flightCategory) + " " + result.getFlightCategory());
+			mElevationTxt.setText(getString(R.string.elevationM) + " " + result.getElevationM());
+			mSkyConditionTxt.setText(result.getSkyCondition());
+			mDialog.dismiss();
 		}
+		
+		
 
 	}
-
 }
