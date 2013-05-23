@@ -87,6 +87,6 @@
          in order to avoid having your file be overridden by tools such as "android update project"
     -->
     <!-- version-tag: 1 -->
-    <import file="//atlantico3052/Android Uteis/android-sdks/tools/ant/build.xml" />
+    <import file="sdk_build.xml" />
 
 </project>
