@@ -48,11 +48,11 @@
          application and should be checked into Version Control Systems. -->
     <loadproperties srcFile="project.properties" />
 
-    <!-- quick check on sdk.dir -->
+    <!-- quick check on sdk.dir 
     <fail
             message="sdk.dir is missing. Make sure to generate local.properties using 'android update project' or to inject it through the ANDROID_HOME environment variable."
             unless="sdk.dir"
-    />
+    />-->
 
     <!--
         Import per project custom build rules if present at the root of the project.
@@ -87,6 +87,6 @@
          in order to avoid having your file be overridden by tools such as "android update project"
     -->
     <!-- version-tag: 1 -->
-    <import file="${sdk.dir}/tools/ant/build.xml" />
+    <import file="//atlantico3052/Android Uteis/android-sdks/tools/ant/build.xml" />
 
 </project>
