@@ -33,7 +33,7 @@ public class MainActivity extends SherlockActivity {
 	private RequestWeatherTask mAsyncTaskWeather;
 	private ProgressDialog mDialog;
 	private ImageButton mSearchBtn;
-	private EditText txtIcao;
+	private EditText mIcaoTxt;
 
 	@Override
 	public void onCreate(Bundle savedInstanceState) {
@@ -180,7 +180,7 @@ public class MainActivity extends SherlockActivity {
 	 */
 	private void setupViewControls(Menu menu) {
 		mSearchBtn = (ImageButton) menu.findItem(R.id.search_action_bar).getActionView().findViewById(R.id.btnBuscar2);
-	    txtIcao = (EditText) menu.findItem(R.id.search_action_bar).getActionView().findViewById(R.id.textoICAO2);
+	    mIcaoTxt = (EditText) menu.findItem(R.id.search_action_bar).getActionView().findViewById(R.id.textoICAO2);
 	    
 	    mSearchBtn.setOnClickListener(mClickListener);
 	}
@@ -190,9 +190,9 @@ public class MainActivity extends SherlockActivity {
 	 */
 	private void exibirMetar() {
 		try {
-			if (txtIcao.getText() != null && txtIcao.getText().toString().length() == 4)	{
+			if (mIcaoTxt.getText() != null && mIcaoTxt.getText().toString().length() == 4)	{
 				String serviceLink = "http://aviationweather.gov/adds/dataserver_current/httpparam?dataSource=metars&requestType=retrieve&format=xml&stationString=" 
-						+ txtIcao.getText().toString() + "&hoursBeforeNow=1.5";
+						+ mIcaoTxt.getText().toString() + "&hoursBeforeNow=1.5";
 
 				 mDialog = ProgressDialog.show(MainActivity.this, getString(R.string.search), getString(R.string.progressOn));
 				mAsyncTaskWeather = new RequestWeatherTask();
