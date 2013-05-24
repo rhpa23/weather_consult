@@ -162,7 +162,7 @@ public class MainActivity extends SherlockActivity {
 	/*
 	 * Método específico para inicializar UI .
 	 */
-	private void setupViewControls() {
+	public void setupViewControls() {
 		mMetarTxt = (TextView) findViewById(R.id.resultMetar);
 		mObservationTimeTxt = (TextView) findViewById(R.id.observationTime);
 		mTempTxt = (TextView) findViewById(R.id.tempC);

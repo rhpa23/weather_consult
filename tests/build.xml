@@ -5,7 +5,54 @@
          It contains the path to the SDK. It should *NOT* be checked into
          Version Control Systems. -->
     <property file="local.properties" />
+    <property file="build.properties" />
+	<!-- BeachHead Test Project Classpath -->
+	<path id="classpath.test">
+		<fileset dir="${test.lib}">
+			<include name="*.jar"/>
+			<exclude name="findbugs/**/*.jar"/>
+		</fileset>
+		<fileset dir="${test.lib}/ant">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${test.lib}/jbehave">
+			<include name="**/*.jar"/>
+		</fileset>
+		<fileset dir="${test.lib}/rest-assured">
+			<include name="**/*.jar"/>
+		</fileset>
+		<pathelement location="${bh.classes}" />
+	</path>
 	
+	<target name="clean">
+		<echo>=== CLEANING TEST PROJECT ===</echo>
+		<delete dir="${test.classes}" failonerror="false" />
+		<delete dir="${test.output}" failonerror="false" />
+		<delete dir="${test.jbehave.output}" failonerror="false" />
+		<mkdir dir="${test.classes}" />
+		<mkdir dir="${test.output}" />
+		<copy todir="${test.webroot}" overwrite="true">
+			<fileset dir="${bh.webroot}/" />
+		</copy>
+		<copy todir="${test.classes}/resources">
+			<fileset dir="${test.browserdrivers}" />
+		</copy>
+	</target>
+	<target name="unit-tests" >
+		<echo>=== RUNNING UNIT TESTS ===</echo>
+		<junit fork="yes" printsummary="yes" haltonfailure="yes" haltonerror="yes">
+			<classpath refid="classpath.test" />
+			<classpath location="${test.jar}" />
+			<classpath location="${test.junit}" />
+			<formatter type="xml" />
+			<batchtest todir="${test.output}">
+				<fileset dir="${test.classes}">
+					<include name="**/bin/classes/com/*Test.class" />
+					<include name="**/resources/*" />
+				</fileset>
+			</batchtest>
+		</junit>
+	</target>	
     <!-- The ant.properties file can be created by you. It is only edited by the
          'android' tool to add properties to it.
          This is the place to change some Ant specific build properties.
